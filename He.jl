@@ -56,7 +56,7 @@ function main()
     orbitalType = eltype(scfres_hf.ψ[1]) # this is usually ComplexF64
 
     # we are interested in N*N_occ virtual orbitals
-    N = 20
+    N = 100
 
     # stochastic initial guess
     ϕk = construct_stochastic_orbitals(N, kpt, orbitalType)
@@ -89,18 +89,18 @@ function main()
     
     # run LOBPCG for DSV's
     # this solves the equation Kk_virt * f = ham_hf_levelshifted * λ * f 
-    @time dsv = DFTK.LOBPCG(
-        Kk_virt, 
-        ϕk, 
-        ham_hf_levelshifted, 
-        kinetic_preconditioner, 
-        1e-5, 
-        500, 
-        callback=DFTK.DefaultLobpcgCallback()
-    )  
-    X_dsv = dsv.X
-    # println("Run Davidson for DSVs")
-    # @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*8, 1e-5)
+    # @time dsv = DFTK.LOBPCG(
+    #     Kk_virt, 
+    #     ϕk, 
+    #     ham_hf_levelshifted, 
+    #     kinetic_preconditioner, 
+    #     1e-5, 
+    #     500, 
+    #     callback=DFTK.DefaultLobpcgCallback()
+    # )  
+    # X_dsv = dsv.X
+    println("Run Davidson for DSVs")
+    @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*8, 1e-5)
 
     # we finally re-canonicalize the virtual DSV orbitals
     println("Recanonicalize DSVs.")
