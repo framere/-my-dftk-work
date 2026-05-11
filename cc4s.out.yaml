@@ -1,0 +1,98 @@
+executionEnvironment:
+  buildDate: May 16 2023 08:21:17
+  compiler: g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+  dryRanks: 0
+  hosts:
+    0:
+      host: cqc00
+      ranks:
+        0: 0
+  startTime: "Mon May 11 13:44:21 2026\n"
+  totalProcesses: 1
+  version: heads/develop-0-ga9240bb8
+statistics:
+  floatingPointOperations: 658183170
+  flops: 541435539.02567387
+  realtime: 1.215626095
+steps:
+  0:
+    in:
+      fileName: CoulombVertex.yaml
+    name: Read
+    out:
+      destination: 0x557e80772cf0
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.032991866
+  1:
+    in:
+      fileName: EigenEnergies.yaml
+    name: Read
+    out:
+      destination: 0x557e80785280
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.001632869
+  2:
+    in:
+      eigenEnergies: 0x557e80785280
+    name: DefineHolesAndParticles
+    out:
+      slicedEigenEnergies: 0x557e80734520
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.000048835
+  3:
+    in:
+      operator: 0x557e80772cf0
+      slicedEigenEnergies: 0x557e80734520
+    name: SliceOperator
+    out:
+      slicedOperator: 0x557e8071a600
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.079028357
+  4:
+    in:
+      slicedCoulombVertex: 0x557e8071a600
+    name: VertexCoulombIntegrals
+    out:
+      coulombIntegrals: 0x557e8076b6d0
+    statistics:
+      floatingPointOperations: 1993320
+      flops: 254104667.68751135
+      realtime: 0.007844484
+  5:
+    in:
+      amplitudesConvergence: 9.9999999999999995e-08
+      coulombIntegrals: 0x557e8076b6d0
+      energyConvergence: 9.9999999999999995e-08
+      integralsSliceSize: 8
+      levelShift: 0
+      linearized: 0
+      maxIterations: 50
+      method: Ccsd
+      mixer:
+        maxResidua: 5
+        type: DiisMixer
+      ppl: 1
+      slicedCoulombVertex: 0x557e8071a600
+      slicedEigenEnergies: 0x557e80734520
+    name: CoupledCluster
+    out:
+      amplitudes: 0x557e8076fc10
+      convergenceReached: 1
+      energy:
+        correlation: -0.0081510933420578871
+        direct: -0.01630218668411576
+        exchange: 0.0081510933420578732
+        secondOrder: -0.0078111746763239254
+        unit: 1
+    statistics:
+      floatingPointOperations: 656189850
+      flops: 607965390.76148474
+      realtime: 1.079321060

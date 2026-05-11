@@ -1,0 +1,98 @@
+executionEnvironment:
+  buildDate: May 16 2023 08:21:17
+  compiler: g++ (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+  dryRanks: 0
+  hosts:
+    0:
+      host: cqc00
+      ranks:
+        0: 0
+  startTime: "Mon May 11 13:44:21 2026\n"
+  totalProcesses: 1
+  version: heads/develop-0-ga9240bb8
+statistics:
+  floatingPointOperations: 5334525104
+  flops: 22659616020.181808
+  realtime: 0.235419925
+steps:
+  0:
+    in:
+      fileName: CoulombVertex.yaml
+    name: Read
+    out:
+      destination: 0x557e8071ad00
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.008544189
+  1:
+    in:
+      fileName: EigenEnergies.yaml
+    name: Read
+    out:
+      destination: 0x557e80766140
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.001692492
+  2:
+    in:
+      eigenEnergies: 0x557e80766140
+    name: DefineHolesAndParticles
+    out:
+      slicedEigenEnergies: 0x557e80767db0
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.000395843
+  3:
+    in:
+      operator: 0x557e8071ad00
+      slicedEigenEnergies: 0x557e80767db0
+    name: SliceOperator
+    out:
+      slicedOperator: 0x557e8076c4f0
+    statistics:
+      floatingPointOperations: 0
+      flops: 0
+      realtime: 0.000253648
+  4:
+    in:
+      slicedCoulombVertex: 0x557e8076c4f0
+    name: VertexCoulombIntegrals
+    out:
+      coulombIntegrals: 0x557e80728c40
+    statistics:
+      floatingPointOperations: 1993320
+      flops: 2900121194.8385258
+      realtime: 0.000687323
+  5:
+    in:
+      amplitudesConvergence: 9.9999999999999995e-08
+      coulombIntegrals: 0x557e80728c40
+      energyConvergence: 9.9999999999999995e-08
+      integralsSliceSize: 8
+      levelShift: 0
+      linearized: 0
+      maxIterations: 50
+      method: Ccsd
+      mixer:
+        maxResidua: 5
+        type: DiisMixer
+      ppl: 1
+      slicedCoulombVertex: 0x557e8076c4f0
+      slicedEigenEnergies: 0x557e80767db0
+    name: CoupledCluster
+    out:
+      amplitudes: 0x557e80784470
+      convergenceReached: 0
+      energy:
+        correlation: 0
+        direct: 0
+        exchange: 0
+        secondOrder: 0
+        unit: 1
+    statistics:
+      floatingPointOperations: 5332531784
+      flops: 25319824195.952702
+      realtime: 0.210606983
