@@ -5,6 +5,7 @@ using DFTK
 using PsiTK
 using PseudoPotentialData
 using LinearAlgebra
+using Printf
 
 function main()
     pd_pbe_family = PseudoFamily("dojo.nc.sr.pbe.v0_5.stringent.upf") 
@@ -84,30 +85,33 @@ function main()
     shift = abs(minimum(minimum.(scfres_hf.eigenvalues))) + 2.0 # lowest HF eigenvalue + 2.0 Ha
     Kk_virt = ProjectedShiftedOperator(Kk, ψocck, shift)
     kinetic_preconditioner = PreconditionerTPA(scfres_hf.ham[ik].basis, kpt)
+    D_real = DFTK.precondprep!(kinetic_preconditioner, nothing)
     
     # run LOBPCG for DSV's
     # this solves the equation Kk_virt * f = ham_hf_levelshifted * λ * f 
-    @time dsv = DFTK.LOBPCG(
-        Kk_virt, 
-        ϕk, 
-        ham_hf_levelshifted, 
-        kinetic_preconditioner, 
-        1e-5, 
-        500, 
-        callback=DFTK.DefaultLobpcgCallback()
-    )
-  
+    # @time dsv = DFTK.LOBPCG(
+    #     Kk_virt, 
+    #     ϕk, 
+    #     ham_hf_levelshifted, 
+    #     kinetic_preconditioner, 
+    #     1e-5, 
+    #     500, 
+    #     callback=DFTK.DefaultLobpcgCallback()
+    # )  
+    println("Run Davidson for DSVs")
+    @time Σ_dsv, X_dsv = davidson(Kk_virt, D_real, ϕk, ψocck, Naux, thresh)
+
     # we finally re-canonicalize the virtual DSV orbitals
     println("Recanonicalize DSVs.")
-    h_dsv = scfres_hf.ham[ik] * dsv.X
-    h_dsv = dsv.X' * h_dsv
+    h_dsv = scfres_hf.ham[ik] * X_dsv
+    h_dsv = X_dsv' * h_dsv
     h_dsv = Hermitian(h_dsv)
     canonical_dsv_res = eigen(h_dsv)
 
     N_occ = size(ψocck,2)
     N_dsv = size(canonical_dsv_res.vectors,2)
 
-    ψvirtk = dsv.X * canonical_dsv_res.vectors
+    ψvirtk = X_dsv * canonical_dsv_res.vectors
     ψ_cc4s = hcat(ψocck, ψvirtk)
     ε_cc4s = vcat(scfres_hf.eigenvalues[ik][1:N_occ], canonical_dsv_res.values)
     occupation_cc4s = vcat(occupation_occ[ik], zeros(N_dsv))
@@ -135,7 +139,6 @@ function main()
     dump_cc4s_files(cc4s_bands, "."; force=true, auxfield_thresh=1e-6)
     println("done")
 end
-
 
 function construct_stochastic_orbitals(N, kpt, orbitalType)
     NG = length(kpt.G_vectors)
@@ -214,5 +217,63 @@ end
 Base.size(op::ProjectedShiftedOperator, args...) = size(op.base_op, args...)
 Base.eltype(op::ProjectedShiftedOperator) = eltype(op.base_op)
 LinearAlgebra.ishermitian(op::ProjectedShiftedOperator) = ishermitian(op.base_op)
+
+function davidson(
+    A::ProjectedShiftedOperator,
+    D_real::AbstractArray{<:Real, 3},
+    V::AbstractMatrix{T},
+    ψocck::AbstractMatrix{T},
+    Naux::Integer,
+    thresh::Float64
+)::Tuple{Vector{T},Matrix{T}} where T<:Number
+
+    Nlow = size(V, 2)
+    if Naux < Nlow
+        println("ERROR: auxiliary basis must not be smaller than number of target eigenvalues")
+    end
+    basis = A.base_op.basis
+    kpt   = A.base_op.kpoint
+
+    iter = 0
+    while true
+        iter += 1
+
+        qr_decomp = qr(V)
+        V = Matrix(qr_decomp.Q)
+
+        H = V' * (A * V)
+        H = Hermitian(H)
+        Σ, U = eigen(H, 1:Nlow)
+        X = V * U
+        R = X .* Σ' - A * X
+        Rnorm = norm(R, 2)
+
+        output = @sprintf("iter=%6d  Rnorm=%11.3e  size(V,2)=%6d\n", iter, Rnorm, size(V, 2))
+        print(output)
+
+        if Rnorm < thresh
+            println("converged!")
+            return (Σ, X)
+        end
+
+        # Preconditioner (currently identity; uncomment block below to activate)
+        # t = zero(similar(R)) 
+        # for i = 1:size(t,2)
+        #    R_real = ifft(basis, kpt, R[:,i]) # FFT to real space
+        #    C = -1.0 ./ (D_real .- Σ[i])
+        #    t_real = C .* R_real # apply C
+        #    t[:,i] = fft(basis, kpt, t_real) # FFT back to reciprocal space
+        # end
+        
+        t = R # no preconditioner
+
+        # Expand or restart the search space
+        if size(V, 2) <= Naux - Nlow
+            V = hcat(V, t)
+        else
+            V = hcat(X, t)
+        end
+    end
+end
 
 main()
