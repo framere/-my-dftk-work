@@ -1,0 +1,47 @@
+- name: Read
+  in:
+    fileName: "CoulombVertex.yaml"
+  out:
+    destination: CoulombVertex
+
+- name: Read
+  in:
+    fileName: "EigenEnergies.yaml"
+  out:
+    destination: EigenEnergies
+
+- name: DefineHolesAndParticles
+  in:
+    eigenEnergies: EigenEnergies
+  out:
+    slicedEigenEnergies: EigenEnergies
+
+- name: SliceOperator
+  in:
+    slicedEigenEnergies: EigenEnergies
+    operator: CoulombVertex
+  out:
+    slicedOperator: CoulombVertex
+
+- name: VertexCoulombIntegrals
+  in:
+    slicedCoulombVertex: CoulombVertex
+  out:
+    coulombIntegrals: CoulombIntegrals
+
+- name: CoupledCluster
+  in:
+    method: Ccsd
+    integralsSliceSize: 8
+    slicedEigenEnergies: EigenEnergies
+    coulombIntegrals: CoulombIntegrals
+    slicedCoulombVertex: CoulombVertex
+    maxIterations: 50
+    energyConvergence: 1.0e-07
+    amplitudesConvergence: 1.0e-07
+    mixer:
+      type: DiisMixer
+      maxResidua: 5
+  out:
+    amplitudes: Amplitudes
+
