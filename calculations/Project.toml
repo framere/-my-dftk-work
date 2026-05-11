@@ -1,0 +1,4 @@
+[deps]
+DFTK = "acf6eb54-70d9-11e9-0013-234b7a5f5337"
+PseudoPotentialData = "5751a51d-ac76-4487-a056-413ecf6fbe19"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
