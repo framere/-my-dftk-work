@@ -56,7 +56,7 @@ function main()
     orbitalType = eltype(scfres_hf.ψ[1]) # this is usually ComplexF64
 
     # we are interested in N*N_occ virtual orbitals
-    N = 100
+    N = 200
 
     # stochastic initial guess
     ϕk = construct_stochastic_orbitals(N, kpt, orbitalType)
@@ -100,7 +100,7 @@ function main()
     # )  
     # X_dsv = dsv.X
     println("Run Davidson for DSVs")
-    @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*8, 1e-5)
+    @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*6, 1e-5)
 
     # we finally re-canonicalize the virtual DSV orbitals
     println("Recanonicalize DSVs.")
