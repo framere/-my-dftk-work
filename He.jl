@@ -99,7 +99,7 @@ function main()
     #     callback=DFTK.DefaultLobpcgCallback()
     # )  
     println("Run Davidson for DSVs")
-    @time Σ_dsv, X_dsv = davidson(Kk_virt, D_real, ϕk, ψocck, N*8, 1e-5)
+    @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*8, 1e-5)
 
     # we finally re-canonicalize the virtual DSV orbitals
     println("Recanonicalize DSVs.")
