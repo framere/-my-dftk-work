@@ -85,7 +85,7 @@ function main()
     shift = abs(minimum(minimum.(scfres_hf.eigenvalues))) + 2.0 # lowest HF eigenvalue + 2.0 Ha
     Kk_virt = ProjectedShiftedOperator(Kk, ψocck, shift)
     kinetic_preconditioner = PreconditionerTPA(scfres_hf.ham[ik].basis, kpt)
-    D_real = DFTK.precondprep!(kinetic_preconditioner, nothing)
+    # D_real = DFTK.precondprep!(kinetic_preconditioner, nothing)
     
     # run LOBPCG for DSV's
     # this solves the equation Kk_virt * f = ham_hf_levelshifted * λ * f 
@@ -220,12 +220,13 @@ LinearAlgebra.ishermitian(op::ProjectedShiftedOperator) = ishermitian(op.base_op
 
 function davidson(
     A::ProjectedShiftedOperator,
-    D_real::AbstractArray{<:Real, 3},
+    # D_real::AbstractArray{<:Real, 3},
     V::AbstractMatrix{T},
     ψocck::AbstractMatrix{T},
     Naux::Integer,
     thresh::Float64
 )::Tuple{Vector{T},Matrix{T}} where T<:Number
+
 
     Nlow = size(V, 2)
     if Naux < Nlow
