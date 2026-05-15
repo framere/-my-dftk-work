@@ -1,2 +1,5 @@
 *.yaml
 *.elements
+*.in
+*.out
+*.log
