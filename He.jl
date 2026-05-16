@@ -7,7 +7,7 @@ using PseudoPotentialData
 using LinearAlgebra
 using Printf
 
-function main()
+function main(method::String)
     pd_pbe_family = PseudoFamily("dojo.nc.sr.pbe.v0_5.stringent.upf") 
 
     He = ElementPsp(:He, pd_pbe_family)
@@ -89,30 +89,41 @@ function main()
     
     # run LOBPCG for DSV's
     # this solves the equation Kk_virt * f = ham_hf_levelshifted * λ * f 
-    @time dsv = DFTK.LOBPCG(
-        Kk_virt, 
-        ϕk, 
-        ham_hf_levelshifted, 
-        kinetic_preconditioner, 
-        1e-5, 
-        500, 
-        callback=DFTK.DefaultLobpcgCallback()
-    )  
-    X_dsv = dsv.X
-    # println("Run Davidson for DSVs")
-    # @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*6, 1e-5)
+    if method == "LOBPCG"
+        @time dsv = DFTK.LOBPCG(
+            Kk_virt, 
+            ϕk, 
+            ham_hf_levelshifted, 
+            kinetic_preconditioner, 
+            1e-5, 
+            500, 
+            callback=DFTK.DefaultLobpcgCallback()
+        )  
+        X_dsv = dsv.X
+        qr_decomp = qr(X_dsv)
+        X_ortho = Matrix(qr_decomp.Q)
+        h_dsv = Hermitian(X_ortho' * (scfres_hf.ham[ik] * X_ortho))
+        canonical_dsv_res = eigen(h_dsv)
+        N_occ = size(ψocck,2)
+        N_dsv = size(canonical_dsv_res.vectors,2)
+        ψvirtk = X_ortho * canonical_dsv_res.vectors
+        
+    elseif method == "Davidson"
+        println("Run Davidson for DSVs")
+        @time Σ_dsv, X_dsv = davidson(Kk_virt, ϕk, ψocck, N*6, 1e-5)
 
-    # we finally re-canonicalize the virtual DSV orbitals
-    println("Recanonicalize DSVs.")
-    h_dsv = scfres_hf.ham[ik] * X_dsv
-    h_dsv = X_dsv' * h_dsv
-    h_dsv = Hermitian(h_dsv)
-    canonical_dsv_res = eigen(h_dsv)
+        # we finally re-canonicalize the virtual DSV orbitals
+        println("Recanonicalize DSVs.")
+        h_dsv = scfres_hf.ham[ik] * X_dsv
+        h_dsv = X_dsv' * h_dsv
+        h_dsv = Hermitian(h_dsv)
+        canonical_dsv_res = eigen(h_dsv)
 
-    N_occ = size(ψocck,2)
-    N_dsv = size(canonical_dsv_res.vectors,2)
+        N_occ = size(ψocck,2)
+        N_dsv = size(canonical_dsv_res.vectors,2)
 
-    ψvirtk = X_dsv * canonical_dsv_res.vectors
+        ψvirtk = X_dsv * canonical_dsv_res.vectors
+
     ψ_cc4s = hcat(ψocck, ψvirtk)
     ε_cc4s = vcat(scfres_hf.eigenvalues[ik][1:N_occ], canonical_dsv_res.values)
     occupation_cc4s = vcat(occupation_occ[ik], zeros(N_dsv))
@@ -278,4 +289,4 @@ function davidson(
     end
 end
 
-main()
+main("LOBPCG")
