@@ -123,7 +123,7 @@ function main(method::String)
         N_dsv = size(canonical_dsv_res.vectors,2)
 
         ψvirtk = X_dsv * canonical_dsv_res.vectors
-
+    end 
     ψ_cc4s = hcat(ψocck, ψvirtk)
     ε_cc4s = vcat(scfres_hf.eigenvalues[ik][1:N_occ], canonical_dsv_res.values)
     occupation_cc4s = vcat(occupation_occ[ik], zeros(N_dsv))
