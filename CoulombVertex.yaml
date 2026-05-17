@@ -1,10 +1,10 @@
 scalarType: "Complex64"
 dimensions:
-  - length: 573
+  - length: 319
     type: "AuxiliaryField"
-  - length: 101
+  - length: 51
     type: "State"
-  - length: 101
+  - length: 51
     type: "State"
 elements:
   type: "IeeeBinaryFile"

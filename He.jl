@@ -56,7 +56,7 @@ function main(method::String)
     orbitalType = eltype(scfres_hf.ψ[1]) # this is usually ComplexF64
 
     # we are interested in N*N_occ virtual orbitals
-    N = 200
+    N = 50
 
     # stochastic initial guess
     ϕk = construct_stochastic_orbitals(N, kpt, orbitalType)
@@ -289,4 +289,4 @@ function davidson(
     end
 end
 
-main("LOBPCG")
+main("Davidson")
