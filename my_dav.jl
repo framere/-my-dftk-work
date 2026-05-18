@@ -341,9 +341,9 @@ function my_davidson(
         if !use_jd || iter < 9
             # Pure Davidson preconditioner for every vector
             for (i_local, _) in enumerate(keep_positions)
-                R_real = ifft(basis, kpt, R_nc[:, i_local])
-                C = -1.0 ./ (D_kin  .- Σ_nc[i_local])
-                t[:, i_local] = fft(basis, kpt, C .* R_real)
+                R_real = ifft(basis, kpt, R_nc[:, i_local])   # 3D array (nx,ny,nz)
+                C = -1.0 ./ (D_kin .- Σ_nc[i_local])          # flat vector, length Nfull
+                t[:, i_local] = fft(basis, kpt, C .* vec(R_real))  # vec() flattens R_real
             end
         else
             # Hybrid Davidson / Jacobi-Davidson (stagnation-triggered)
@@ -369,8 +369,8 @@ function my_davidson(
             t_dav = zeros(eltype(V), n, length(dav_indices))
             for (j, i_local) in enumerate(dav_indices)
                 R_real = ifft(basis, kpt, R_nc[:, i_local])
-                C = -1.0 ./ (D_kin  .- Σ_nc[i_local])
-                t_dav[:, j] = fft(basis, kpt, C .* R_real)
+                C = -1.0 ./ (D_kin .- Σ_nc[i_local])
+                t_dav[:, j] = fft(basis, kpt, C .* vec(R_real))  # ← add vec() here too
             end
 
             t_jd = if !isempty(jd_indices)
