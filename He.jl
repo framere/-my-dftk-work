@@ -7,6 +7,8 @@ using PseudoPotentialData
 using LinearAlgebra
 using Printf
 
+include("my_dav.jl")
+
 function main(method::String)
     pd_pbe_family = PseudoFamily("dojo.nc.sr.pbe.v0_5.stringent.upf") 
 
@@ -85,7 +87,9 @@ function main(method::String)
     shift = abs(minimum(minimum.(scfres_hf.eigenvalues))) + 2.0 # lowest HF eigenvalue + 2.0 Ha
     Kk_virt = ProjectedShiftedOperator(Kk, ψocck, shift)
     kinetic_preconditioner = PreconditionerTPA(scfres_hf.ham[ik].basis, kpt)
-    # D_real = DFTK.precondprep!(kinetic_preconditioner, nothing)
+    DFTK.precondprep!(kinetic_preconditioner, scfres_hf.ψ[ik])  # any ψk works here
+    D_kin = kinetic_preconditioner.kin   # Vector{Float64} of length Nfull, reciprocal space
+
     
     # run LOBPCG for DSV's
     # this solves the equation Kk_virt * f = ham_hf_levelshifted * λ * f 
@@ -123,7 +127,32 @@ function main(method::String)
         N_dsv = size(canonical_dsv_res.vectors,2)
 
         ψvirtk = X_dsv * canonical_dsv_res.vectors
-    end 
+    elseif method == "my_dav"
+        println("Run my Davidson for DSVs")
+        n_aux = N*6
+        @time Σ_dsv, X_dsv = davidson(
+            Kk_virt,
+            D_kin,          # now a plain Vector{Float64}, no FFT needed inside
+            ϕk,
+            n_aux,
+            N,
+            1e-4,
+            500;
+            use_jd = true
+        )
+        # we finally re-canonicalize the virtual DSV orbitals
+        println("Recanonicalize DSVs.")
+        h_dsv = scfres_hf.ham[ik] * X_dsv
+        h_dsv = X_dsv' * h_dsv
+        h_dsv = Hermitian(h_dsv)
+        canonical_dsv_res = eigen(h_dsv)
+
+        N_occ = size(ψocck,2)
+        N_dsv = size(canonical_dsv_res.vectors,2)
+
+        ψvirtk = X_dsv * canonical_dsv_res.vectors
+    end
+    
     ψ_cc4s = hcat(ψocck, ψvirtk)
     ε_cc4s = vcat(scfres_hf.eigenvalues[ik][1:N_occ], canonical_dsv_res.values)
     occupation_cc4s = vcat(occupation_occ[ik], zeros(N_dsv))
