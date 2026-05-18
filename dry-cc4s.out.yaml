@@ -4,72 +4,72 @@ executionEnvironment:
   dryRanks: 0
   hosts:
     0:
-      host: cqc05
+      host: cqc00
       ranks:
         0: 0
-  startTime: "Sun May 17 12:03:41 2026\n"
+  startTime: "Mon May 18 12:53:34 2026\n"
   totalProcesses: 1
   version: heads/develop-0-ga9240bb8
 statistics:
-  floatingPointOperations: 460753418812
-  flops: 1147232940027.0359
-  realtime: 0.401621504
+  floatingPointOperations: 40578288172
+  flops: 166630583773.15689
+  realtime: 0.243522451
 steps:
   0:
     in:
       fileName: CoulombVertex.yaml
     name: Read
     out:
-      destination: 0x56136f383a30
+      destination: 0x5634e994b370
     statistics:
       floatingPointOperations: 0
       flops: 0
-      realtime: 0.010208916
+      realtime: 0.004919253
   1:
     in:
       fileName: EigenEnergies.yaml
     name: Read
     out:
-      destination: 0x56136f3d1250
+      destination: 0x5634e9999240
     statistics:
       floatingPointOperations: 0
       flops: 0
-      realtime: 0.009117373
+      realtime: 0.002560610
   2:
     in:
-      eigenEnergies: 0x56136f3d1250
+      eigenEnergies: 0x5634e9999240
     name: DefineHolesAndParticles
     out:
-      slicedEigenEnergies: 0x56136f3db060
+      slicedEigenEnergies: 0x5634e99a05d0
     statistics:
       floatingPointOperations: 0
       flops: 0
-      realtime: 0.000729022
+      realtime: 0.000083329
   3:
     in:
-      operator: 0x56136f383a30
-      slicedEigenEnergies: 0x56136f3db060
+      operator: 0x5634e994b370
+      slicedEigenEnergies: 0x5634e99a05d0
     name: SliceOperator
     out:
-      slicedOperator: 0x56136f3da5c0
+      slicedOperator: 0x5634e999fb30
     statistics:
       floatingPointOperations: 0
       flops: 0
-      realtime: 0.000702553
+      realtime: 0.000239271
   4:
     in:
-      slicedCoulombVertex: 0x56136f3da5c0
+      slicedCoulombVertex: 0x5634e999fb30
     name: VertexCoulombIntegrals
     out:
-      coulombIntegrals: 0x56136f3da660
+      coulombIntegrals: 0x5634e999da50
     statistics:
-      floatingPointOperations: 33188760
-      flops: 22993874075.603413
-      realtime: 0.001443374
+      floatingPointOperations: 7457360
+      flops: 16006422006.533619
+      realtime: 0.000465898
   5:
     in:
       amplitudesConvergence: 9.9999999999999995e-08
-      coulombIntegrals: 0x56136f3da660
+      coulombIntegrals: 0x5634e999da50
       energyConvergence: 9.9999999999999995e-08
       integralsSliceSize: 8
       levelShift: 0
@@ -80,11 +80,11 @@ steps:
         maxResidua: 5
         type: DiisMixer
       ppl: 1
-      slicedCoulombVertex: 0x56136f3da5c0
-      slicedEigenEnergies: 0x56136f3db060
+      slicedCoulombVertex: 0x5634e999fb30
+      slicedEigenEnergies: 0x5634e99a05d0
     name: CoupledCluster
     out:
-      amplitudes: 0x56136f3e46a0
+      amplitudes: 0x5634e99c0080
       convergenceReached: 0
       energy:
         correlation: 0
@@ -93,6 +93,6 @@ steps:
         secondOrder: 0
         unit: 1
     statistics:
-      floatingPointOperations: 460720230052
-      flops: 1333931063935.1201
-      realtime: 0.345385337
+      floatingPointOperations: 40570830812
+      flops: 181744085136.23514
+      realtime: 0.223230543

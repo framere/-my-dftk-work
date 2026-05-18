@@ -153,7 +153,7 @@ function is_stagnating(hist::Vector{Float64}; tol=0.1, window=2)
 end
 
 function my_davidson(
-    A::ProjectedShiftedOperator,
+    A,
     D_kin::AbstractVector{<:Real},
     V::AbstractMatrix{T},
     n_aux::Integer,
